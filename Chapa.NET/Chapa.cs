@@ -1,5 +1,6 @@
 using Flurl;
 using Flurl.Http;
+using ChapaNET.ChapaDTOs;
 
 namespace ChapaNET;
 public enum TransactionStatus
@@ -20,7 +21,9 @@ public class Chapa
         //    .AddDefaultHeader(ChapaConfig.AUTH_HEADER, "Bearer " + Config.API_SECRET)
         //    .UseNewtonsoftJson();
     }
+
     public Chapa(ChapaConfig config) : this(config.API_SECRET) { }
+    
     public async Task<ChapaResponse> RequestAsync(ChapaRequest request)
     {
         var reqDict = new Dictionary<string, string?>()
@@ -49,6 +52,7 @@ public class Chapa
             .WithHeader(ChapaConfig.AUTH_HEADER, $"Bearer {Config.API_SECRET}")
             .PostJsonAsync(reqDict)
             .ReceiveJson();
+    
         return new()
         {
             Status = response.status,
@@ -56,39 +60,7 @@ public class Chapa
             CheckoutUrl = response.data.checkout_url
         };
     }
-    public class ValidityReport
-    {
-        public bool IsSuccess => status == "success";
-        public string message { get; set; }
-        public string status { get; set; }
-        public Data data { get; set; }
-        public class Data
-        {
-            public string first_name { get; set; }
-            public string last_name { get; set; }
-            public string email { get; set; }
-            public string currency { get; set; }
-            public double amount { get; set; }
-            public double charge { get; set; }
-            public string mode { get; set; }
-            public string method { get; set; }
-            public string type { get; set; }
-            public string status { get; set; }
-            public string reference { get; set; }
-            public string tx_ref { get; set; }
-            public Customization customization { get; set; }
-            public object meta { get; set; }
-            public DateTime created_at { get; set; }
-            public DateTime updated_at { get; set; }
-        }
-
-        public class Customization
-        {
-            public string title { get; set; }
-            public string description { get; set; }
-            public string logo { get; set; }
-        }
-    }
+    
     public async Task<ValidityReport?> VerifyAsync(string txRef)
     {
         try
@@ -114,36 +86,4 @@ public class Chapa
 
         return response.data!;
     }
-    class BankResponse
-    {
-        public string? message { get; set; }
-
-        public IEnumerable<Bank>? data { get; set; }
-    }
 }
-public class Bank
-{
-    public string ID;
-    public string SwiftCode;
-    public string Name;
-    public int AccLen;
-    public int CountryID;
-    public Bank(string id, string swift, string name, int accLen, int country_id)
-    {
-        ID = id;
-        SwiftCode = swift;
-        Name = name;
-        AccLen = accLen;
-        CountryID = country_id;
-    }
-    public override string ToString()
-    {
-        return
-        $@"ID: {ID}
-Name: {Name}
-Swift Code: {SwiftCode}
-AcctLen: {AccLen}
-Country ID: {CountryID}";
-    }
-}
-
