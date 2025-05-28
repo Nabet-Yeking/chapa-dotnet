@@ -10,7 +10,7 @@ public enum TransactionStatus
 public class Chapa
 {
     ChapaConfig Config { get; set; }
-    public static string GetUniqueRef() => "tx" + DateTime.Now.Ticks;
+    public static string GetUniqueRef() => $"tx{Guid.NewGuid()}";
     public Chapa(string SECRET_KEY)
     {
         if (SECRET_KEY == null)
